@@ -23,7 +23,6 @@ UCHAR image_tonal_data_blk[512 * 512];
 int image_tonal_data_blk_int[512 * 512];
 int image_tonal_data_blk_int_out[512 * 512];
 
-
 int main(int argc, char* argv[])
 {
 	
@@ -34,13 +33,13 @@ int main(int argc, char* argv[])
 
 	int nblocks = 0;
 
-	/*
+	
 	//Multiplicamos las matrices DCT e IDCT por un valor múltiplo de 8 para que las divisiones sean desplazamientos
-	for (k = 0; k < 64; k++) {
+	/*for (k = 0; k < 64; k++) {
 		DCT[k] = (long)(T[k] * pow(2,N));
 		DCTt[k] = (long)(Tt[k] * pow(2,N));		
-	}
-	*/
+	}*/
+	
 	
 	// Load file and extract data /////////////////////////////////////////////////////////////////////////////////////// 
 
@@ -73,7 +72,7 @@ int main(int argc, char* argv[])
 	// Input modifications ///////////////////////////////////////////////////////////////////////////////////////
 
 	//Generamos la máscara. En este caso es como si no utilizáramos máscara
-	block_mask_8_512_sq(cmp_mask, 8);
+	block_mask_8_512_sq(cmp_mask, 1);
 
 
 	//Vas haciendo la DCT de todos los bloques 8x8
@@ -115,7 +114,7 @@ int main(int argc, char* argv[])
 	imager_8_512_sq(image_tonal_data_blk_int_out, image_tonal_data_bss);
 
 
-	debug_outputBPM(image_tonal_data_bss, "maskValue8");	
+	debug_outputBPM(image_tonal_data_bss, "maskValue1");	
 
 	//El siguiente bucle es para ver la diferencia entre la imagen de salida y la original
 	//El if es porque si con UCHAR restas un valor a otro que es menor, el resultado es 255 y falsea la prueba.
@@ -124,7 +123,7 @@ int main(int argc, char* argv[])
 		else image_tonal_data_bss_ini[k] = image_tonal_data_bss[k] - image_tonal_data_bss_ini[k];
 	}
 
-	debug_outputBPM(image_tonal_data_bss_ini, "diffMaskValue8");
+	debug_outputBPM(image_tonal_data_bss_ini, "diffMaskValue1");
 
 	////////////////////////////////////////////////////////////////////////////////////////
 
@@ -149,7 +148,7 @@ int debug_outputBPM(UCHAR * image_tonal_data, const char * app)
 
 	/* Save result */
 	char buff[50];
-	sprintf(buff, "res/lena512_%s.bmp", app);
+	sprintf(buff, "res/N8%s.bmp", app);
 	BMP_WriteFile(bmp, buff);
 	BMP_CHECK_ERROR(stderr, -2);
 	return 0;
