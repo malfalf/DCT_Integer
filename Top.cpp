@@ -72,8 +72,8 @@ int main(int argc, char* argv[])
 
 	// Input modifications ///////////////////////////////////////////////////////////////////////////////////////
 
-	//Generamos la máscara. En este caso nos quedamos con los 6 valores de la esquina superior
-	block_mask_8_512_sq(cmp_mask, 7);
+	//Generamos la máscara. En este caso es como si no utilizáramos máscara
+	block_mask_8_512_sq(cmp_mask, 8);
 
 
 	//Vas haciendo la DCT de todos los bloques 8x8
@@ -103,6 +103,7 @@ int main(int argc, char* argv[])
 		
 		QnD_TtAT(&image_tonal_data_blk_int[n * B * B], A_int_IDCT);
 
+		//Esto es solo para poner toda la imagen en una matriz para luego poder visualizarla
 		for (int m = 0; m < B * B; m++) {
 			image_tonal_data_blk_int_out[m + n * 64] = A_int_IDCT[m];
 		}
@@ -114,7 +115,7 @@ int main(int argc, char* argv[])
 	imager_8_512_sq(image_tonal_data_blk_int_out, image_tonal_data_bss);
 
 
-	debug_outputBPM(image_tonal_data_bss, "maskValue7");	
+	debug_outputBPM(image_tonal_data_bss, "maskValue8");	
 
 	//El siguiente bucle es para ver la diferencia entre la imagen de salida y la original
 	//El if es porque si con UCHAR restas un valor a otro que es menor, el resultado es 255 y falsea la prueba.
@@ -123,7 +124,7 @@ int main(int argc, char* argv[])
 		else image_tonal_data_bss_ini[k] = image_tonal_data_bss[k] - image_tonal_data_bss_ini[k];
 	}
 
-	debug_outputBPM(image_tonal_data_bss_ini, "diffMaskValue7");
+	debug_outputBPM(image_tonal_data_bss_ini, "diffMaskValue8");
 
 	////////////////////////////////////////////////////////////////////////////////////////
 

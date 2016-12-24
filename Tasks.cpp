@@ -223,13 +223,14 @@ void QnD_TtAT(int A[B * B], int A_int[B * B])
 	//Pasamos los valores de int a long
 	INT_to_L(&A[0], A_long);
 
+	//Hacemos la DCT inversa
 	BxA_L(AxB_L(A_long, DCT), DCTt);
 
 	//Dividimos entre 2*2^N. Esto lo hacemos desplazando 2*N a la derecha. 
 	//Se divide entre dos veces porque estamos multiplicando por DCT e IDCT y cada una de ellas está multiplicada por 2^N
 	MshiftRight(&A_long[0], N);
 
-	//Le restamos 127 a los valores en long
+	//Le sumamos 127 a los valores en long porque durante la DCT le restamos 127
 	MplusC(&A_long[0], 127);
 
 	//Guardamos la salida en valores tipo int (16bits). No utilizamos 8bits porque se saturan los mayores valores 
