@@ -1,8 +1,29 @@
 #include "Tasks.h"
+#include <conio.h>
 
-long DCT[64] = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
-long DCTt[64] = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
+//long DCT[64] = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
 
+//long DCTt[64] = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
+
+long DCT[64] = { 181,  181,  181,  181,  181,  181,  181,  181,
+251,  212,  142,   49,  -49, -142, -212, -251,
+236,   97,  -97, -236, -236,  -97,   97,  236,
+212,  -49, -251, -142,  142,  251,   49, -212,
+181, -181, -181,  181,  181, -181, -181,  181,
+142, -251,   49,  212, -212,  -49,  251, -142,
+97, -236,  236, -97,  -97,   236, -236,   97,
+49, -142,  212, -251,  251, -212,  142,  -49,
+};
+
+long DCTt[64] = { 181,  251,  236,  212,  181,  142,   97,   49,
+181,  212,   97,  -49, -181, -251, -236, -142,
+181,  142,  -97, -251, -181,   49,  236,  212,
+181,   49, -236, -142,  181,  212,  -97, -251,
+181,  -49, -236,  142,  181, -212,  -97,  251,
+181, -142,  -97,  251, -181,  -49,  236, -212,
+181, -212,   97,   49, -181,  251, -236,  142,
+181, -251,  236, -212,  181, -142,   97,  -49,
+};
 
 //Function deff
 
@@ -21,7 +42,7 @@ long DCTt[64] = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0
 	
 	Finalmente, devuelve el número de bloques que se tienen (en este caso es fijo por tener una imagen de 512x512 y bloque de 8x8.
 */
-int blocker_8_512_sq(UCHAR *cdata, unsigned long *bstring)
+int blocker_8_512_sq(UCHAR *cdata, UCHAR *bstring)
 {
 	const int n = 512, m = 512;
 	int block_pattern[B*B], c = 0;
@@ -33,7 +54,7 @@ int blocker_8_512_sq(UCHAR *cdata, unsigned long *bstring)
 	for (int i = 0; i < (m / B); i++)
 		for (int j = 0; j < (n / B); j++)
 			for (int k = 0; k < B*B; k++)
-				bstring[k + j*(B*B) + i*(n / B)*(B*B)] = (unsigned long)(cdata[block_pattern[k] + B*j + (n / B)*B*B*i]);
+				bstring[k + j*(B*B) + i*(n / B)*(B*B)] = (UCHAR)(cdata[block_pattern[k] + B*j + (n / B)*B*B*i]);
 
 	return (m / B)*(m / B);
 	//Retunrs the number of blocks to ease operation
@@ -42,7 +63,7 @@ int blocker_8_512_sq(UCHAR *cdata, unsigned long *bstring)
 /*
 	Takes an array of row arrays of matrix sub-blocks of dimension B from the original image matrix and transform it into an array with the pixel values ordered in consecutive rows  
 */
-int imager_8_512_sq(unsigned long *bstring, UCHAR *cdata)
+int imager_8_512_sq(int *bstring, UCHAR *cdata)
 {
 	const int n = 512, m = 512;
 	int block_pattern[B*B], c = 0;
@@ -56,7 +77,7 @@ int imager_8_512_sq(unsigned long *bstring, UCHAR *cdata)
 	for (int i = 0; i < (m / B); i++)
 		for (int j = 0; j < (n / B); j++)
 			for (int k = 0; k < B*B; k++)
-				cdata[block_pattern[k] + B*j + (n / B)*B*B*i] = (UCHAR)(bstring[k + j*(B*B) + i*(n / B)*(B*B)] >> 2*N);
+				cdata[block_pattern[k] + B*j + (n / B)*B*B*i] = (UCHAR)(bstring[k + j*(B*B) + i*(n / B)*(B*B)]);
 
 	return (m / B)*(m / B);
 	//Retunrs the number of blocks to ease operation
@@ -65,22 +86,6 @@ int imager_8_512_sq(unsigned long *bstring, UCHAR *cdata)
 /*
 	copies d values of the first parameter on to the second parameter being the parameters UCHAR vector pointers with dimension abobe d
 */
-void copy_U(UCHAR *copied, UCHAR *copy, int d)
-{
-	for (int i = 0; i < d; i++)
-		copy[i] = copied[i];
-}
-void copy_U_F(float *copied, UCHAR *copy, int d)
-{
-	for (int i = 0; i < d; i++)
-		copy[i] = (UCHAR)round(copied[i]);
-}
-void copy_F_U(UCHAR *copied, float *copy, int d)
-{
-	for (int i = 0; i < d; i++)
-		copy[i] = (float)(copied[i]);
-}
-
 void copy_F(long *copied, long *copy, int d)
 {
 	for (int i = 0; i < d; i++)
@@ -102,51 +107,8 @@ void block_mask_8_512_sq(UCHAR *mask, int d)
 				mask[c++] = 0;
 }
 
-/*
-	Inverts the block content on the main diagonal, d selects the block of the array of row arrays of matrix sub-blocks of dimension B from the original image 
-*/
-void block_invt_8_512_sq(UCHAR *bstring, int d) //diagonal primaria
-{
-	UCHAR TMP[B*B];
 
-	copy_U(&bstring[B*B*d], TMP, B*B);
 
-	for (int i = 0; i < B; i++)
-		for (int j = 0; j < B; j++)
-			bstring[i*B + j + (B*B*d)] = TMP[i + j*B];
-
-}
-
-/*
-	Rotates the d block of the array of row arrays of matrix sub-blocks of dimension B from the original image, clockwise rotation
-*/
-void block_rotd_8_512_sq(UCHAR *bstring, int d)
-{
-	UCHAR TMP[B*B];
-
-	copy_U(&bstring[B*B*d], TMP, B*B);
-
-	for (int i = 0; i < B; i++)
-		for (int j = 0; j < B; j++)
-			bstring[j*B + 7 - i + (B*B*d)] = TMP[j + i*B];
-
-}
-
-/*
-	Rotates the d block of the array of row arrays of matrix sub-blocks of dimension B from the original image, counterclockwise rotation
-*/
-void block_roti_8_512_sq(UCHAR *bstring, int d)
-{
-
-	UCHAR TMP[B*B];
-
-	copy_U(&bstring[B*B*d], TMP, B*B);
-
-	for (int i = 0; i < B; i++)
-		for (int j = 0; j < B; j++)
-			bstring[(7 - j)*B + i + (B*B*d)] = TMP[j + i*B];
-
-}
 
 
 // TEMP /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,53 +118,10 @@ void block_roti_8_512_sq(UCHAR *bstring, int d)
 	double vectorTrans[B*B];
 	double mask[B*B];
 
-/*
-Función que va a multiplicar las dos funciones que le pases y las guarda en matrixResult
-*/
-void vectorMult(double vector1[B*B], double vector2[B*B]) {
-	//double matrixResult[B][B];
-	for (int k = 0; k < B; k++) {
-		for (int i = 0; i < B; i++) {
-			vectorResult[i + k*B] = 0;
-			for (int j = 0; j < B; j++) {
-				vectorResult[k*B + i] += vector1[j + k*B] * vector2[i + j*B];
-			}
-		}
-	}
-}
-//Modifies ther first parameter pushing in the result, correspond to A
-UCHAR * AxB(UCHAR M1[B * B], UCHAR M2[B * B])
-{
-	UCHAR TMP[B * B];
-	for (int k = 0; k < B; k++) {
-		for (int i = 0; i < B; i++) {
-			TMP[i + k*B] = 0;
-			for (int j = 0; j < B; j++) {
-				TMP[k*B + i] += M1[j + k*B] * M2[i + j*B];
-			}
-		}
-	}
-	copy_U(TMP, M1, B * B);
-	return M1; //Returns the pointer of the firts parameter variable that also contains the result to allow recursive calls
-}
-//Modifies ther first parameter pushing in the result, correspond to A
-UCHAR * BxA(UCHAR M1[B * B], UCHAR M2[B * B])
-{
-	UCHAR TMP[B * B];
-	for (int k = 0; k < B; k++) {
-		for (int i = 0; i < B; i++) {
-			TMP[i + k*B] = 0;
-			for (int j = 0; j < B; j++) {
-				TMP[k*B + i] += M2[j + k*B] * M1[i + j*B];
-			}
-		}
-	}
-	copy_U(TMP, M1, B * B);
-	return M1; //Returns the pointer of the firts parameter variable that also contains the result to allow recursive calls
-}
+
 //F variant accepts float as second matrix
 //Modifies ther first parameter pushing in the result, correspond to A
-long * AxB_F(long M1[B * B], long M2[B * B])
+long * AxB_L(long M1[B * B], long M2[B * B])
 {
 	long TMP[B * B];
 	for (int k = 0; k < B; k++) {
@@ -220,7 +139,7 @@ long * AxB_F(long M1[B * B], long M2[B * B])
 
 // F variant accepts float as second matrix
 //Modifies ther first parameter pushing in the result, correspond to A
-long * BxA_F(long M1[B * B], long M2[B * B])
+long * BxA_L(long M1[B * B], long M2[B * B])
 {
 	long TMP[B * B];
 	for (int k = 0; k < B; k++) {
@@ -235,53 +154,90 @@ long * BxA_F(long M1[B * B], long M2[B * B])
 	return M1; //Returns the pointer of the firts parameter variable that also contains the result to allow recursive calls
 }
 
-void MxC(UCHAR M1[B * B], float cns)
+
+void INT_to_L(int M1[B * B], long A_long[B * B]) 
 {
-	UCHAR TMP[B * B];
-	for (int i = 0; i < B; i++) {
-		for (int j = 0; j < B; j++) {
-			TMP[i + j*B] = (UCHAR)floor((float)M1[i + j*B] * cns);
-		}
+	for (int k = 0; k < B * B; k++) {
+		A_long[k] = (long)M1[k];
 	}
-	copy_U(TMP, M1, B * B);
+}
+
+void UCHAR_to_L(UCHAR M1[B * B], long A_long[B * B])
+{
+	for (int k = 0; k < B * B; k++) {
+		A_long[k] = (long)M1[k];
+	}
+}
+
+void L_to_INT(long M1[B * B], int A_int[B * B]) {
+	for (int k = 0; k < B * B; k++) {
+		A_int[k] = (int)M1[k];
+	}
+}
+
+void MplusC(long M1[B * B], int cns)
+{
+	for (int i = 0; i < B*B; i++) {
+		M1[i] += cns;
+	}
+}
+
+void MshiftRight(long M1[B * B], int shift)
+{
+	for (int i = 0; i < B*B; i++) {
+		M1[i] = M1[i] >> 2 * shift;
+	}
+
 }
 
 //
-void QnD_TATt(long A[B * B])
+void QnD_TATt(UCHAR A[B * B], int A_int[B * B])
 {
-	BxA_F(AxB_F(A, DCTt), DCT);
-	/*
-	for (int i = 0; i < 64; i++) {
-		A[i] = round(A[i] / Qmatrix10[i]);
-	}
-	*/
+	//Creamos esta matriz para hacer el cambio de UCHAR A long
+	long A_long[B*B];
+
+	//Pasamos los valores de UCHAR a long
+	UCHAR_to_L(&A[0], A_long);
+
+	//Le restamos 127 a los valores en long
+	MplusC(&A_long[0], -127);
+
+	//Hacemos la DCT: DCT*A_long*DCTt en formato long para no perder valores
+	BxA_L(AxB_L(A_long, DCTt), DCT);
+
+	//Dividimos entre 2*2^N. Esto lo hacemos desplazando 2*N a la derecha. 
+	//Se divide entre dos veces porque estamos multiplicando por DCT e IDCT y cada una de ellas está multiplicada por 2^N
+	MshiftRight(&A_long[0], N);
+
+	//Guardamos la salida en valores tipo int (16bits). No utilizamos 8bits porque se saturan los mayores valores 
+	//y justo son esos los que queremos guardar. Estos valores serán los que salgan hacia el siguiente bloque.
+	L_to_INT(&A_long[0], &A_int[0]);
+
 }
 
-void QnD_TtAT(long A[B * B])
+void QnD_TtAT(int A[B * B], int A_int[B * B])
 {
-	/*
-	for (int i = 0; i < 64; i++) {
-		A[i] = A[i] * Qmatrix10[i];
-	}
-	*/
-	
-	BxA_F(AxB_F(A, DCT), DCTt);
+	//Creamos esta matriz para hacer el cambio de int A long
+	long A_long[B*B];
+
+	//Pasamos los valores de int a long
+	INT_to_L(&A[0], A_long);
+
+	BxA_L(AxB_L(A_long, DCT), DCTt);
+
+	//Dividimos entre 2*2^N. Esto lo hacemos desplazando 2*N a la derecha. 
+	//Se divide entre dos veces porque estamos multiplicando por DCT e IDCT y cada una de ellas está multiplicada por 2^N
+	MshiftRight(&A_long[0], N);
+
+	//Le restamos 127 a los valores en long
+	MplusC(&A_long[0], 127);
+
+	//Guardamos la salida en valores tipo int (16bits). No utilizamos 8bits porque se saturan los mayores valores 
+	//y justo son esos los que queremos guardar. Estos valores serán los que salgan hacia el siguiente bloque.
+	L_to_INT(&A_long[0], &A_int[0]);
 
 }
 
-
-/*
-Función que va a transponer el vector que le pases y lo va a guardar en matrixTrans
-*/
-void transVector(double vector1[B*B]) {
-	//double matrixTrans[B][B];
-
-	for (int i = 0; i < B; i++) {
-		for (int j = 0; j < B; j++) {
-			vectorTrans[i*B + j] = vector1[i + j*B];
-		}
-	}
-}
 
 /*
 Función que te crea la matriz máscara. Con la variable precisión dices el número de "filas" que coges:
@@ -306,20 +262,8 @@ void createMask(int precision) {
 	mask[B*precision] = 1;
 }
 
-/*
-Función que aplica la máscara y se guarda en matrixMask. Es tan tonta como comprobar si el valor de la máscara
-es 1 o 0 y si es 1 respetas el valor y si es 0 pones la matriz resultante a 0.
-*/
-void applyMask(double vector1[B*B]) {
-	for (int i = 0; i < B; i++) {
-		for (int j = 0; j < B; j++) {
-			if (mask[i*B + j] == 1) vectorMask[i*B + j] = vector1[i*B + j];
-			else vectorMask[i*B + j] = 0;
-		}
-	}
-}
 
-void Mask(long A[B*B], UCHAR mask[B*B]) {
+void Mask(int A[B*B], UCHAR mask[B*B]) {
 	for (int p = 0; p < B*B; p++)
 		A[p] *= mask[p];
 }

@@ -94,9 +94,6 @@ const float Tt[64] = { 0.3536F, 0.4904F, 0.4619F, 0.4157F, 0.3536F, 0.2778F, 0.1
 0.3536F,-0.4157F, 0.1913F, 0.0975F,-0.3536F, 0.4904F,-0.4619F, 0.2778F,
 0.3536F,-0.4904F, 0.4619F,-0.4157F, 0.3536F,-0.2778F, 0.1913F,-0.0975F };
 
-extern long DCT[64]; //= { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
-extern long DCTt[64]; // = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
-
 
 const int Qmatrix50[64] = {
 	16, 11, 10, 16, 24, 40, 51, 61,
@@ -121,34 +118,28 @@ const int Qmatrix10[64] = {
 };
 
 //Transform operationss
-int blocker_8_512_sq(UCHAR *cdata, unsigned long *bstring);
-int imager_8_512_sq(unsigned long *bstring, UCHAR *cdata);
+int blocker_8_512_sq(UCHAR *cdata, UCHAR *bstring);
+int imager_8_512_sq(int *bstring, UCHAR *cdata);
 
 //Management operations
-void copy_U(UCHAR *copied, UCHAR *copy, int d);
-void copy_U_F(float *copied, UCHAR *copy, int d);
-void copy_F_U(UCHAR *copied, float *copy, int d);
 void copy_F(float *copied, float *copy, int d);
 
 //Block operations
 void block_mask_8_512_sq(UCHAR *mask, int d);
-void block_invt_8_512_sq(UCHAR *bstring, int d);
-void block_rotd_8_512_sq(UCHAR *bstring, int d);
-void block_roti_8_512_sq(UCHAR *bstring, int d);
 
 //Matrix operations
-void vectorMult(double vector1[B*B], double vector2[B*B]);
+long * AxB_L(long M1[B * B], long M2[B * B]);
+long * BxA_L(long M1[B * B], long M2[B * B]);
+void QnD_TATt(UCHAR A[B * B], int A_int[B * B]);
+void QnD_TtAT(int A[B * B], int A_int[B * B]);
+void MplusC(long M1[B * B], int cns);
+void MshiftRight(long M1[B * B], int shift);
+void UCHAR_to_L(UCHAR A[B * B], long A_long[B * B]);
+void INT_to_L(int A[B * B], long A_long[B * B]);
+void L_to_INT(long M1[B * B], int A_int[B * B]);
 
-UCHAR * AxB(UCHAR M1[B * B], UCHAR M2[B * B]);
-UCHAR * BxA(UCHAR M1[B * B], UCHAR M2[B * B]);
-long * AxB_F(long M1[B * B], long M2[B * B]);
-long * BxA_F(long M1[B * B], long M2[B * B]);
-void QnD_TATt(long A[B * B]);
-void QnD_TtAT(long A[B * B]);
-void MxC(UCHAR M1[B * B], float cns);
-void Mask(long A[B*B], UCHAR mask[B*B]);
-void transVector(double vector1[B*B]);
+
+void Mask(int A[B*B], UCHAR mask[B*B]);
 void createMask(int precision);
-void applyMask(double vector1[B*B]);
 
 #endif
