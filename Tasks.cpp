@@ -1,10 +1,6 @@
 #include "Tasks.h"
 #include <conio.h>
 
-//long DCT[64] = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
-
-//long DCTt[64] = { 0,0,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
-
 /*Matrices DCT e IDCT multiplicadas por 2^9 = 512
 long DCT[64] = { 181,  181,  181,  181,  181,  181,  181,  181,
 251,  212,  142,   49,  -49, -142, -212, -251,
@@ -27,99 +23,151 @@ long DCTt[64] = { 181,  251,  236,  212,  181,  142,   97,   49,
 };
 */
 
-//Valores de la matriz DCT e IDCT multiplicados por 2^8 = 256
-long DCT[64] = { 90,   90,   90,   90,   90,   90,   90,   90,
-125,  106,   71,   24, -24, -71, -106, -125,
-118,   48, -48, -118, -118, -48,   48,  118,
-106, -24, -125, -71,   71,  125,   24, -106,
-90, -90, -90,   90,   90, -90, -90,   90,
-71, -125,   24,  106, -106, -24,  125, -71,
-48, -118,  118, -48, -48,  118, -118,   48,
-24, -71,  106, -125,  125, -106,   71, -24,
-};
+//Valores de la matriz DCT e IDCT multiplicados por 2^8 = 256 y redondeadas.
+//De esta forma tenemos valores enteros y no en punto flotante
+long DCT[64] = {	90,   90,   90,   90,   90,   90,   90,   90,
+					125,  106,  71,   24,   -24,  -71,  -106, -125,
+					118,  48,   -48,  -118, -118, -48,  48,   118,
+					106,  -24,  -125, -71,  71,   125,  24,   -106,
+					90,   -90,  -90,  90,   90,   -90,  -90,  90,
+					71,   -125, 24,   106,  -106, -24,  125,  -71,
+					48,   -118, 118,  -48,  -48,  118,  -118, 48,
+					24,   -71,  106,  -125, 125,  -106, 71,   -24,
+				};
 
-long DCTt[64] = {
-90,  125,  118,  106,   90,   71,   48,   24,
-90,  106,   48, -24, -90, -125, -118, -71,
-90,   71, -48, -125, -90,   24,  118,  106,
-90,   24, -118, -71,   90,  106, -48, -125,
-90, -24, -118,   71,   90, -106, -48,  125,
-90, -71, -48,  125, -90, -24,  118, -106,
-90, -106,   48,   24, -90,  125, -118,   71,
-90, -125,  118, -106,   90, -71,   48, -24,
-};
-
-
-
-//Function deff
+long DCTt[64] = {	90,  125,  118,  106,   90,   71,   48,   24,
+					90,  106,  48,   -24,   -90,  -125, -118, -71,
+					90,  71,   -48,  -125,  -90,  24,   118,  106,
+					90,  24,   -118, -71,   90,   106,  -48,  -125,
+					90,  -24,  -118, 71,    90,   -106, -48,  125,
+					90,  -71,  -48,  125,   -90,  -24,  118,  -106,
+					90,  -106, 48,   24,    -90,  125,  -118, 71,
+					90,  -125, 118,  -106,  90,   -71,  48,   -24,
+				};
 
 /*
-	Takes the array with the image pixel values ordered in consecutive rows and transform it into and array of matrix sub-blocks of dimension B from the original image
-	Primero mete en block_pattern los valores [0, 1, ..., 7, 512, 513, ..., 519, 1024, 1025, ..., 1031,..., 3583, 3584, ..., 3590] que ayuda con los saltos que hay que 
-	dar en el vector de entrada para luego coger en orden los bloques de 8x8. Hay que recordar que cdata es el vector con todos los pixels de la imagen, pero que
-	se van pasando todos seguidos. Es decir, para una imagen de 512 x 512, cdata tendrán:
-		- valores de 0 a 511 la primera fila de la imagen, 
-		- valores de 512 a 1023 la segunda fila de la imagen,
-		-...
-		- valores de 261632 a 262143 la última fila de la imagen.
-	Pero nosotros en bstring queremos tener los primeros 64 valores el primer bloque 8x8, por lo que tenemos que coger los valores de 0 a 7, de 512 a 519, de 1024 a 1031... 
-	y para eso se crea block_pattern
-	Por lo tanto, en bstring tendremos los valores ordenador por bloques de 8x8 de la imagen.
-	
-	Finalmente, devuelve el número de bloques que se tienen (en este caso es fijo por tener una imagen de 512x512 y bloque de 8x8.
+Function : blocker_8_512_sq
+--------------------------
+
+Ordenará la imagen que le entra como argumento en bloques de 8x8. Por lo tanto, se tendrá a su 
+salida un vector en el que los primeros 64 valores corresponden al primer bloque de 8x8 de la 
+imagen de entrada, los siguientes 64 valores corresponderán al segundo bloque, etc.
+Para ello es necesario crear el vector block_pattern para conocer que posiciones coger del vector
+de entrada para conseguir el orden correcto. 
+block_pattern = [0, 1, ..., 7, 512, 513, ..., 519, 1024, 1025, ..., 1031,..., 3583, 3584, ..., 3590]
+
+cdata:	vector de 512x512 correspondiente a los valores de los píxeles de la imagen de entrada.
+		Primeros 512 valores corresponden a la primera fila de la imagen
+		Segundos 512 valores corresponden a la segunda final de la imagen
+		Etc.
+bstring:	vector de 512x512 valores en los que los píxeles estarán ordenados en bloques de 8x8.
+			Primeros 64 valores corresponden al primer bloque de 8x8 píxeles de la imagen original
+			Segundos 64 valores corresponden al segundo bloque de 8x8 píxeles de la imagen original
+			Etc.
+
+returns:	Número de bloques resultantes.
+
 */
+
 int blocker_8_512_sq(UCHAR *cdata, UCHAR *bstring)
 {
 	const int n = 512, m = 512;
 	int block_pattern[B*B], c = 0;
 	
+	//Creación del vector block_pattern. Descripción arriba.
 	for (int i = 0; i < 8; i++)
-		for (int j = i*n; j - i*n < 8; j++)		//Using n here is dependent of the oder chosen for the vector, in this case is rows so correspond to n
+		for (int j = i*n; j - i*n < 8; j++)		
 			block_pattern[c++] = j;
-	//calculates the ofsets to extract the blocks from the vector and reorder the data in a block wise way of substrings of B^2 bits
+
+	//Obtención del vector de datos ordenados en bloques de 8x8
 	for (int i = 0; i < (m / B); i++)
 		for (int j = 0; j < (n / B); j++)
 			for (int k = 0; k < B*B; k++)
 				bstring[k + j*(B*B) + i*(n / B)*(B*B)] = (UCHAR)(cdata[block_pattern[k] + B*j + (n / B)*B*B*i]);
 
+	//Devuelve el número de bloques resultante
 	return (m / B)*(m / B);
-	//Retunrs the number of blocks to ease operation
 }
 
+
 /*
-	Takes an array of row arrays of matrix sub-blocks of dimension B from the original image matrix and transform it into an array with the pixel values ordered in consecutive rows  
+Function : imager_8_512_sq
+--------------------------
+
+Generará la imagen a partir de un vector con los bloques de 8x8 valores.
+Para ello es necesario crear el vector block_pattern para conocer que posiciones coger del vector
+de entrada para conseguir el orden correcto en la imagen final.
+block_pattern = [0, 1, ..., 7, 512, 513, ..., 519, 1024, 1025, ..., 1031,..., 3583, 3584, ..., 3590]
+
+bstring:	vector de 512x512 correspondiente a los bloques de 8x8 píxeles.
+			Primeros 64 valores corresponden el primer bloque de 8x8
+			Segundos 64 valores corresponden al segundo bloque de 8x8
+			Etc.
+cdata:	vector de 512x512 valores en los que los píxeles estarán ordenados para obtener una imagen de 512x512.
+		Primeros 512 valores corresponden a la primera fila de la imagen
+		Segundos 512 valores corresponden a la segunda fila de la imagen
+		Etc.
+
+returns:	Número de bloques resultantes.
+
 */
 int imager_8_512_sq(int *bstring, UCHAR *cdata)
 {
 	const int n = 512, m = 512;
 	int block_pattern[B*B], c = 0;
 
-	//Generates a vector that describes the ubication of a 8x8 section on the image having its data distributed in a unidimensional vector ordered in rows
+	//Creación del vector block_pattern. Descripción arriba.
 	for (int i = 0; i < 8; i++)
-		for (int j = i*n; j - i*n < 8; j++)		//Using n here is dependent of the oder chosen for the vector, in this case is rows so correspond to n
+		for (int j = i*n; j - i*n < 8; j++)		
 			block_pattern[c++] = j;
 
-	//calculates the ofsets to extract the blocks from the vector and reorder the data in a block wise way of substrings of B^2 bits
+	//Obtención de la imagen de 512x512 píxeles
 	for (int i = 0; i < (m / B); i++)
 		for (int j = 0; j < (n / B); j++)
 			for (int k = 0; k < B*B; k++)
 				cdata[block_pattern[k] + B*j + (n / B)*B*B*i] = (UCHAR)(bstring[k + j*(B*B) + i*(n / B)*(B*B)]);
 
 	return (m / B)*(m / B);
-	//Retunrs the number of blocks to ease operation
 }
 
+
 /*
-	copies d values of the first parameter on to the second parameter being the parameters UCHAR vector pointers with dimension abobe d
+Function : copy_L
+-----------------
+
+Copia los valores de formato long del vector del primer argumneto en el vector del segundo argumento
+
+copied:	puntero a los datos que se quieren copiar
+copy:	puntero a los datos donde se quiere copiar
+d:	número de datos que se quieren copiar
+
 */
-void copy_F(long *copied, long *copy, int d)
+void copy_L(long *copied, long *copy, int d)
 {
 	for (int i = 0; i < d; i++)
 		copy[i] = copied[i];
 }
 
+
 /*
-	generates a mask consisting in a matrix of dimension B with ones in the superior corner untill the diagonal d, the generated matrix is then copied into the UCHAR vector pointer passed as first parameter
+Function : block_mask_8_512_sq
+------------------------------
+
+Creará la máscara para quedarnos con los valores deseados tras la DCT. Esta máscara será un vector
+de 8x8 valores que tendrá los 1s deseados en la esquina superior izquierda y 0s en las posiciones
+restantes. Ejemplo, si d es 5:
+mask =	1 1 1 1 1 0 0 0
+		1 1 1 1 0 0 0 0
+		1 1 1 0 0 0 0 0
+		1 1 0 0 0 0 0 0
+		1 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0
+		0 0 0 0 0 0 0 0
+
+mask:	puntero al vector donde guardaremos los valores de la máscara
+d:	número diagonales de 1s deseado. Valor máximo 8.
+
 */
 void block_mask_8_512_sq(UCHAR *mask, int d)
 {
@@ -145,8 +193,19 @@ void block_mask_8_512_sq(UCHAR *mask, int d)
 	double mask[B*B];
 
 
-//F variant accepts float as second matrix
-//Modifies ther first parameter pushing in the result, correspond to A
+
+/*
+Function : AxB_L
+----------------
+
+Multiplicación matricial de valores long M1xM2
+
+M1:	vector de 8x8 valores que será el primer operando de la multiplicación matricial
+M2: vector de 8x8 valores que será el segundo operando de la multiplicación matricial
+
+returns:	puntero para permitir llamadas recursivas.
+
+*/
 long * AxB_L(long M1[B * B], long M2[B * B])
 {
 	long TMP[B * B];
@@ -158,13 +217,25 @@ long * AxB_L(long M1[B * B], long M2[B * B])
 			}
 		}
 	}
-	copy_F(TMP, M1, B * B);
-	return M1; //Returns the pointer of the firts parameter variable that also contains the result to allow recursive calls
+	//Copiamos los valores obtenidos en TMP
+	copy_L(TMP, M1, B * B);
+	//Devuelve el puntero para permitir llamadas recursivas
+	return M1; 
 }
 
 
-// F variant accepts float as second matrix
-//Modifies ther first parameter pushing in the result, correspond to A
+/*
+Function : BxA_L
+----------------
+
+Multiplicación matricial de valores long M2xM1
+
+M1:	vector de 8x8 valores que será el primer operando de la multiplicación matricial
+M2: vector de 8x8 valores que será el segundo operando de la multiplicación matricial
+
+returns:	puntero para permitir llamadas recursivas.
+
+*/
 long * BxA_L(long M1[B * B], long M2[B * B])
 {
 	long TMP[B * B];
@@ -176,11 +247,23 @@ long * BxA_L(long M1[B * B], long M2[B * B])
 			}
 		}
 	}
-	copy_F(TMP, M1, B * B);
-	return M1; //Returns the pointer of the firts parameter variable that also contains the result to allow recursive calls
+	//Copiamos los valores obtenidos en TMP
+	copy_L(TMP, M1, B * B);
+	//Devuelve el puntero para permitir llamadas recursivas
+	return M1; 
 }
 
 
+/*
+Function : INT_to_L
+-------------------
+
+Transforma los valores de una matriz de formato int a formato long
+
+M1:	vector de 8x8 valores con formato int
+A_long:	vector de 8x8 valores con formato long
+
+*/
 void INT_to_L(int M1[B * B], long A_long[B * B]) 
 {
 	for (int k = 0; k < B * B; k++) {
@@ -188,6 +271,17 @@ void INT_to_L(int M1[B * B], long A_long[B * B])
 	}
 }
 
+
+/*
+Function : UCHAR_to_L
+---------------------
+
+Transforma los valores de una matriz de formato unsigned char a formato long
+
+M1:	vector de 8x8 valores con formato unsigned char
+A_long:	vector de 8x8 valores con formato long
+
+*/
 void UCHAR_to_L(UCHAR M1[B * B], long A_long[B * B])
 {
 	for (int k = 0; k < B * B; k++) {
@@ -195,12 +289,34 @@ void UCHAR_to_L(UCHAR M1[B * B], long A_long[B * B])
 	}
 }
 
+
+/*
+Function : L_to_INT
+-------------------
+
+Transforma los valores de una matriz de formato long a formato int
+
+M1:	vector de 8x8 valores con formato long
+A_int:	vector de 8x8 valores con formato int
+
+*/
 void L_to_INT(long M1[B * B], int A_int[B * B]) {
 	for (int k = 0; k < B * B; k++) {
 		A_int[k] = (int)M1[k];
 	}
 }
 
+
+/*
+Function : MplusC
+-----------------
+
+Sumará a todos los valores de una matriz un valor constante
+
+M1:	vector de 8x8 valores con formato long
+cns:	valor constante que sumar a cada valor del vector
+
+*/
 void MplusC(long M1[B * B], int cns)
 {
 	for (int i = 0; i < B*B; i++) {
@@ -208,6 +324,18 @@ void MplusC(long M1[B * B], int cns)
 	}
 }
 
+
+/*
+Function : MshiftRight
+----------------------
+
+Función que realizará una desplazamiento hacia la derecha 2*shift posiciones de todos
+los valores de un vector. Será como realizar una división entre 2^shift.
+
+M1:	vector de 8x8 valores con formato long
+shift:	definirá el número de posiciones que se desplaza cada valor del vector
+
+*/
 void MshiftRight(long M1[B * B], int shift)
 {
 	for (int i = 0; i < B*B; i++) {
@@ -216,7 +344,25 @@ void MshiftRight(long M1[B * B], int shift)
 
 }
 
-//
+
+/*
+Function : QnD_TATt
+-------------------
+
+Bloque encargado de realizar la DCT sobre los valores de entrada.
+Tendrá como entrada bloques de 8x8 valores de 1byte y como salida bloques de 
+8x8 valores en formato int.
+Realizará los siguientes pasos:
+	1. Conversión de unsigned char a long
+	2. Resta de los valores por 127 para centraros en torno a 0 (pasamos de 0-255 a -127-128)
+	3. DCT
+	4. Desplazamiento de 2*N de los valores resultado de la DCT
+	5. Transformación de los valores de long a int
+
+A:	vector de 8x8 valores en formato unsigned char sobre los que vamos a realizar la DCT
+A_int:	vector de 8x8 valores en formato int que será la salida del bloque
+
+*/
 void QnD_TATt(UCHAR A[B * B], int A_int[B * B])
 {
 	//Creamos esta matriz para hacer el cambio de UCHAR A long
@@ -241,6 +387,25 @@ void QnD_TATt(UCHAR A[B * B], int A_int[B * B])
 
 }
 
+
+/*
+Function : QnD_TtAT
+-------------------
+
+Bloque encargado de realizar la IDCT sobre los valores de entrada.
+Tendrá como entrada bloques de 8x8 valores int y como salida bloques de
+8x8 valores en formato int.
+Realizará los siguientes pasos:
+1. Conversión de int a long
+2. IDCT 
+3. Desplazamiento de 2*N de los valores resultado de la IDCT
+4. Suma de los valores de la IDCT por 127 para volver a tener lo valores en el rango 0-255
+5. Transformación de los valores de long a int
+
+A:	vector de 8x8 valores en formato int sobre los que vamos a realizar la IDCT
+A_int:	vector de 8x8 valores en formato int que será la salida del bloque
+
+*/
 void QnD_TtAT(int A[B * B], int A_int[B * B])
 {
 	//Creamos esta matriz para hacer el cambio de int A long
@@ -267,29 +432,16 @@ void QnD_TtAT(int A[B * B], int A_int[B * B])
 
 
 /*
-Función que te crea la matriz máscara. Con la variable precisión dices el número de "filas" que coges:
-- Con valor 0, pones a 1 el valor 0,0 y el resto a 0
-- Con valor 1, pones a 1 los valores 0,0; 0,1; 1,0 y el resto a 0
-- ...
+Function : Mask
+-------------------
+
+Aplicará la máscara creada al bloque de 8x8 de entrada. De esta forma, nos quedaremos con únicamente los valores
+deseados de la DCT.
+
+A:	vector de 8x8 valores en formato int sobre los que vamos a aplicar la máscara
+mask:	vector de 8x8 valores que corresponderá con la máscara
+
 */
-void createMask(int precision) {
-	//Para inicializar todos los valores de mask a 0
-	for (int i = 0; i < B; i++) {
-		for (int j = 0; j < B; j++) {
-			mask[i*B + j] = 0;
-		}
-	}
-
-	for (int i = 0; i < precision; i++) {
-		for (int j = 0; j < precision; j++) {
-			mask[i*B + j] = 1;
-		}
-	}
-	mask[precision] = 1;
-	mask[B*precision] = 1;
-}
-
-
 void Mask(int A[B*B], UCHAR mask[B*B]) {
 	for (int p = 0; p < B*B; p++)
 		A[p] *= mask[p];
