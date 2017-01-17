@@ -1,3 +1,15 @@
+/*
+Código creado por Carlos Pastor Ramírez y Miguel Ángel Alfonso Alfonso
+para la asignatura Lenguajes y Herramientas de Diseño Digital.
+
+Este fichero contendrá las funciones necesarias en Top.cpp para 
+realizar correctamente la DCT y la IDCT sobre una imagen conocida.
+
+Curso: 2016-2017
+
+*/
+
+
 #include "Tasks.h"
 #include <conio.h>
 

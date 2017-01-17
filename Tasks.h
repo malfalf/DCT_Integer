@@ -1,3 +1,13 @@
+/*
+Código creado por Carlos Pastor Ramírez y Miguel Ángel Alfonso Alfonso
+para la asignatura Lenguajes y Herramientas de Diseño Digital.
+
+Header file de Task.cpp
+
+Curso: 2016-2017
+
+*/
+
 #ifndef _TSK_H_
 #define _TSK_H_
 

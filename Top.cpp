@@ -1,3 +1,23 @@
+/*
+Código creado por Carlos Pastor Ramírez y Miguel Ángel Alfonso Alfonso
+para la asignatura Lenguajes y Herramientas de Diseño Digital.
+
+Este código se utilizará en la obtención de la DCT y la IDCT de 8x8 valores
+de una imagen de entrada conocida de 512x512 pixeles (lena.bmp). Para ello,
+se utilizarán 4 grandes bloques:
+- blocker -> ordena los píxeles de la imagen en bloques de 8x8.
+- QnD_TATt -> realizará la DCT de los bloques 8x8 que se le vayan pasando como argumento
+- QnD_TtAT -> realizará la DCT inversa de los bloques 8x8 que se le vayan pasando como argumento
+- imager -> función inversa a blocker. Colocará los píxeles para una correcta visualización de la imagen.
+
+En este código se utilizarán únicamente valores con formato entero.
+
+Asimismo, cabe destacar que se hará uso de la librería qdbmp, no creada por nosotros.
+
+Curso: 2016-2017
+
+*/
+
 #include <stdio.h>
 #include <conio.h>
 #include <math.h>
@@ -12,14 +32,14 @@ UINT    width, height;
 UINT    h, w, s, k;
 //--
 
-//Función que nos permitirá representar las imagágenes obtenidas en diferentes puntos del código
+//Función que nos permitirá representar las imágenes obtenidas en diferentes puntos del código
 int debug_outputBPM(UCHAR * image_tonal_data, const char * app);
 
 //Vectores donde guardaremos los valores de los píxeles en diferentes puntos del código
 //Estos vectores están pensados para una imagen de 512x512 píxeles
-UCHAR image_tonal_data_bss[512 * 512];		//8bit...+250kByte
+UCHAR image_tonal_data_bss[512 * 512];		
 UCHAR image_tonal_data_bss_ini[512 * 512];
-float image_tonal_data_csn[512 * 512];		//8bit...+250kByte
+float image_tonal_data_csn[512 * 512];		
 UCHAR image_tonal_data_blk[512 * 512];
 int image_tonal_data_blk_int[512 * 512];
 int image_tonal_data_blk_int_out[512 * 512];
@@ -58,7 +78,7 @@ int main(int argc, char* argv[])
 	{
 		for (w = 0; w < width; ++w)
 		{
-			/* Get pixel's RGB values */
+			//Obtenemos los valores de los píxeles
 			BMP_GetPixelIndex(bmp, w, h, &image_tonal_data_bss_ini[w + width*h]);
 
 		}
@@ -74,8 +94,8 @@ int main(int argc, char* argv[])
 
 
 	//Para entender el funcionamiento de la función block_mask_8_512_sq ver descripción en task.cpp
-	//Generamos la máscara. En este caso es como si no utilizáramos máscara
-	block_mask_8_512_sq(cmp_mask, 5);
+	//Generamos la máscara. En este caso nos quedamos con los 6 valores de la esquina superior izquierda
+	block_mask_8_512_sq(cmp_mask, 3);
 
 
 	//Aplicamos la DCT
@@ -102,7 +122,7 @@ int main(int argc, char* argv[])
 
 
 	//Aplicamos la IDCT
-	//Para entender el funcionamiento de la función QnD_TtAT ver descripción en task.cpp
+	//Para entender el funcionamiento de la función QnD_TtAT, ver descripción en task.cpp
 	//En este bucle, se van realizando las IDCT de los todos los bloques de 8x8 píxeles
 	for (int n = 0; n < nblocks; n++)
 	{
@@ -128,10 +148,7 @@ int main(int argc, char* argv[])
 	//Esta parte es solo para mostrar diferentes resultados que se han ido obteniendo durante la simulación
 	//El siguiente bucle es para ver la diferencia entre la imagen de salida y la original
 	//El if es porque si con UCHAR restas un valor a otro que es menor, el resultado es 255 y falsea la prueba.
-
 	//Función para obtener una imagen de los resultados
-
-
 	for (int k = 0; k < 512 * 512; k++) {
 		if(image_tonal_data_bss_ini[k] > image_tonal_data_bss[k]) image_tonal_data_bss_ini[k] -= image_tonal_data_bss[k];
 		else image_tonal_data_bss_ini[k] = image_tonal_data_bss[k] - image_tonal_data_bss_ini[k];
